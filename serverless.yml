@@ -1,0 +1,75 @@
+service: retrobook-service
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  profile: retrobook_admin
+  region: us-west-2
+  apiKeys:
+    - retrobook_admin_key
+  usagePlan:
+      quota:
+        limit: 200
+        period: WEEK
+      throttle:
+        burstLimit: 300
+        rateLimit: 3
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+#package:
+#  include:
+#    - include-me.js
+#    - include-me-dir/**
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+functions:
+  get_books:
+    handler: src/books/get_books.handler
+    role: arn:aws:iam::535116423835:role/RetroBook-API_Lambda_Role 
+    events: 
+      - http:
+          path: books
+          method: get
+          private: true
+          integration: lambda
+          request: 
+            passThrough: WHEN_NO_TEMPLATES
+            parameters:
+              querystrings:
+                author: false,
+                id: false,
+                limit: true
+              headers:
+                x-api-key: true
+    environment:
+      TABLE_NAME: RetroBook_Books
+
+# resources:
+#   Resources:
+#     volumesBucket:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: retrobooktest
+#     volumesDb:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: RetroBook_Books
+#         AttributeDefinitions:
+#           - AttributeName: id
+#             AttributeType: S
+#           - AttributeName: author
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: id
+#             KeyType: HASH
+#           - AttributeName: author
+#             KeyType: RANGE
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 5
+#           WriteCapacityUnits: 5
