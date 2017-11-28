@@ -1,0 +1,16 @@
+events: 
+  - http:
+      path: books
+      method: get
+      private: true
+      integration: lambda
+      request: 
+        passThrough: WHEN_NO_TEMPLATES
+        parameters:
+          querystrings:
+            author: false,
+            id: false,
+            limit: true
+          headers:
+            x-api-key: true
+            

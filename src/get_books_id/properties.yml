@@ -1,0 +1,13 @@
+events: 
+  - http:
+      path: books/{id}
+      method: get
+      private: true
+      integration: lambda
+      request: 
+        passThrough: WHEN_NO_TEMPLATES
+        parameters:
+          path:
+            id: true
+          headers:
+            x-api-key: true
