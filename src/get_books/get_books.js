@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const TABLE_NAME = process.env.TABLE_NAME;
+const ddbUtils = require('../dynamoutil');
 let docClient = new AWS.DynamoDB.DocumentClient();
 
 let handler = (event, context, callback) => {
@@ -20,7 +21,7 @@ function getAllBooks(queryString) {
     let startKey = null;
     let limit = queryString.limit;
     return new Promise((resolve, reject) => {
-        checkKeyExists(queryString.id, queryString.author).then(exists => {
+        ddbUtils.checkKeyExists(TABLE_NAME, queryString.id, queryString.author).then(exists => {
             if (exists) {
                 startKey = {
                     id: queryString.id,
@@ -42,37 +43,6 @@ function getAllBooks(queryString) {
             reject(err);
         });
     });
-}
-
-function checkKeyExists(id, author) {
-    return new Promise((resolve, reject) => {
-        if (id && author) {
-            let params = {
-                TableName: TABLE_NAME,
-                KeyConditionExpression: '#id = :idValue and #author = :authorValue',
-                ExpressionAttributeNames: {
-                    "#id": "id",
-                    "#author": "author"
-                },
-                ExpressionAttributeValues: {
-                    ":idValue": id,
-                    ":authorValue": author
-                }
-            };
-    
-            docClient.query(params).promise().then(result => {
-                if (!result) {
-                    resolve(false);
-                } else {
-                    resolve(true);
-                }
-            }, err => {
-                reject(err);
-            });
-        }
-    
-        resolve(false);
-    });    
 }
 
 module.exports = {

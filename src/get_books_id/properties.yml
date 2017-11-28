@@ -1,13 +1,14 @@
 events: 
   - http:
-      path: books/{id}
+      path: books/id
       method: get
       private: true
       integration: lambda
       request: 
         passThrough: WHEN_NO_TEMPLATES
         parameters:
-          path:
+          querystrings:
+            author: true
             id: true
           headers:
             x-api-key: true
